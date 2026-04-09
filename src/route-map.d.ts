@@ -41,6 +41,55 @@ declare module 'vue-router/auto-routes' {
       { id: ParamValue<false> },
       | never
     >,
+    '/dashboard/': RouteRecordInfo<
+      '/dashboard/',
+      '/dashboard',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboard/agents/': RouteRecordInfo<
+      '/dashboard/agents/',
+      '/dashboard/agents',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboard/agents/[id]': RouteRecordInfo<
+      '/dashboard/agents/[id]',
+      '/dashboard/agents/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
+    '/dashboard/errors': RouteRecordInfo<
+      '/dashboard/errors',
+      '/dashboard/errors',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboard/integrations/mobiwave': RouteRecordInfo<
+      '/dashboard/integrations/mobiwave',
+      '/dashboard/integrations/mobiwave',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/landing': RouteRecordInfo<
+      '/landing',
+      '/landing',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/sandbox': RouteRecordInfo<
+      '/sandbox',
+      '/sandbox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -63,6 +112,48 @@ declare module 'vue-router/auto-routes' {
     'src/pages/chat/[id].vue': {
       routes:
         | '/chat/[id]'
+      views:
+        | never
+    }
+    'src/pages/dashboard/index.vue': {
+      routes:
+        | '/dashboard/'
+      views:
+        | never
+    }
+    'src/pages/dashboard/agents/index.vue': {
+      routes:
+        | '/dashboard/agents/'
+      views:
+        | never
+    }
+    'src/pages/dashboard/agents/[id].vue': {
+      routes:
+        | '/dashboard/agents/[id]'
+      views:
+        | never
+    }
+    'src/pages/dashboard/errors.vue': {
+      routes:
+        | '/dashboard/errors'
+      views:
+        | never
+    }
+    'src/pages/dashboard/integrations/mobiwave.vue': {
+      routes:
+        | '/dashboard/integrations/mobiwave'
+      views:
+        | never
+    }
+    'src/pages/landing.vue': {
+      routes:
+        | '/landing'
+      views:
+        | never
+    }
+    'src/pages/sandbox.vue': {
+      routes:
+        | '/sandbox'
       views:
         | never
     }

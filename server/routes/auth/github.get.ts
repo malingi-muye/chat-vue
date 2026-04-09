@@ -1,12 +1,13 @@
 import { FetchError, $fetch } from 'ofetch'
 import { getRandomValues } from 'node:crypto'
 import type { H3Event } from 'nitro'
-import { defineHandler, HTTPError } from 'nitro'
+import { defineHandler, HTTPError, createError } from 'nitro'
 import { getQuery, redirect, getRequestURL, setCookie, deleteCookie, getCookie } from 'nitro/h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import type { Endpoints } from '@octokit/types'
 import { useUserSession } from '../../utils/session'
+import { useDrizzle } from '../../utils/drizzle'
 
 interface RequestAccessTokenResponse {
   access_token?: string
@@ -101,16 +102,82 @@ export default defineHandler(async (event: H3Event) => {
     },
   })
 
-  // Success
+  // Success - sync/create user in database
+  const db = useDrizzle()
+  
+  // Find or create user
+  let dbUser = await db.query.users.findFirst({
+    where: (t, { eq, and }) => and(
+      eq(t.provider, 'github'),
+      eq(t.providerId, user.id.toString())
+    )
+  })
+
+  if (!dbUser) {
+    // Create new user
+    const newUserId = crypto.randomUUID()
+    await db.insert(db.tables.users).values({
+      id: newUserId,
+      email: user.email || `${user.login}@github.local`,
+      name: user.name || user.login,
+      avatar: user.avatar_url || '',
+      username: user.login,
+      provider: 'github',
+      providerId: user.id.toString(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    })
+    dbUser = { id: newUserId } as any
+  }
+
+  // Ensure user has a default organization
+  const userOrgs = await db.query.organizationMembers.findFirst({
+    where: (t, { eq }) => eq(t.userId, dbUser!.id)
+  })
+
+  if (!userOrgs) {
+    // Create default personal organization for user
+    const orgId = crypto.randomUUID()
+    const slug = `${user.login}-workspace`
+    
+    await db.insert(db.tables.organizations).values({
+      id: orgId,
+      name: `${user.name || user.login}&apos;s Workspace`,
+      slug,
+      ownerId: dbUser.id,
+      plan: 'free',
+      monthlyUsage: 0,
+      monthlyQuota: 1000,
+      costLimit: 0,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    })
+  }
+
+  // Get user's primary organization (owned)
+  const primaryOrg = await db.query.organizations.findFirst({
+    where: (t, { eq }) => eq(t.ownerId, dbUser!.id)
+  })
+
   const session = await useUserSession(event)
 
   await session.update(defu({
     user: {
-      id: user.id.toString(),
+      id: dbUser.id,
       username: user.login,
       name: user.name || user.login,
+      email: user.email || `${user.login}@github.local`,
       avatar: user.avatar_url,
     },
+    organization: primaryOrg ? {
+      id: primaryOrg.id,
+      name: primaryOrg.name,
+      slug: primaryOrg.slug
+    } : undefined,
+    membership: primaryOrg ? {
+      role: 'owner'
+    } : undefined
   }, session.data))
 
   return redirect('/')

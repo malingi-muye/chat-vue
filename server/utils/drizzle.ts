@@ -19,6 +19,24 @@ export function useDrizzle() {
   return _db
 }
 
+// User & Auth types
+export type User = typeof schema.users.$inferSelect
+export type Organization = typeof schema.organizations.$inferSelect
+export type OrganizationMember = typeof schema.organizationMembers.$inferSelect
+
+// Chat & Message types
 export type Chat = typeof schema.chats.$inferSelect
 export type Message = typeof schema.messages.$inferSelect
 export type Vote = typeof schema.votes.$inferSelect
+
+// Agent & Integration types
+export type Agent = typeof schema.agents.$inferSelect
+export type AgentIntegration = typeof schema.agentIntegrations.$inferSelect
+export type ApiKey = typeof schema.apiKeys.$inferSelect
+
+// Analytics & Monitoring types
+export type Analytics = typeof schema.analytics.$inferSelect
+export type ErrorLog = typeof schema.errorLogs.$inferSelect
+
+// Billing types
+export type Subscription = typeof schema.subscriptions.$inferSelect

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { $fetch } from 'ofetch'
 import { useChats } from '../composables/useChats'
@@ -9,10 +9,17 @@ import Navbar from '../components/Navbar.vue'
 
 const { fetchChats } = useChats()
 const { csrf, headerName } = useCsrf()
-const { user } = useUserSession()
+const { user, loggedIn } = useUserSession()
 const input = ref('')
 const loading = ref(false)
 const router = useRouter()
+
+// Redirect to landing page if not logged in
+onMounted(() => {
+  if (!loggedIn.value) {
+    router.replace('/landing')
+  }
+})
 
 const greeting = computed(() => {
   const hour = new Date().getHours()
